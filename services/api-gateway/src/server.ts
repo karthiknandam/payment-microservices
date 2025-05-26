@@ -5,7 +5,7 @@ import helmet from "helmet";
 import type { NextFunction, Request, Response } from "express";
 import proxy from "express-http-proxy";
 import logger from "./utils/logger";
-
+import bodyParser from "body-parser";
 env.config();
 
 const PORT = process.env.PORT || 3000;
@@ -15,7 +15,7 @@ const server = express();
 server.use(cors());
 server.use(helmet());
 server.use(express.json());
-
+server.use(bodyParser.json());
 const proxyConfiguration = {
   proxyReqPathResolver: (req: Request) => {
     const newPath = req.originalUrl.replace(/^\/v1/, "/api");
