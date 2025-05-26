@@ -1,16 +1,19 @@
 import env from "dotenv";
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import logger from "./utils/logger";
-import router from "./routes/user.route";
-
+import userRoute from "./routes/user.route";
+import paymentRoute from "./routes/payment.route";
+import cookieParser from "cookie-parser";
 env.config();
 const PORT = process.env.PORT || 3001;
 const API_GATEWAY = process.env.API_GATEWAY || "";
 const server = express();
 
+// middleware
 logger.info(API_GATEWAY);
+server.use(cookieParser());
 server.use(express.json());
 server.use(helmet());
 server.use(
@@ -35,7 +38,8 @@ server.use("/api/auth/health", (req: Request, res: Response) => {
   }
 });
 
-server.use("/api/auth/", router);
+server.use("/api/auth/user/", userRoute);
+server.use("/api/auth/payment-methods/", paymentRoute);
 
 const startServer = async () => {
   try {

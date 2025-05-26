@@ -7,16 +7,12 @@ import {
   SignUpType,
 } from "../validation/auth.validation";
 import prisma from "../lib/prisma";
-import { string } from "zod";
+import { AuthResponse } from "../utils/types";
 import { generateToken } from "../utils/token";
 interface AuthRequest extends Request {
   body: SignUpType;
 }
-interface AuthResponse {
-  success: boolean;
-  message: string;
-  error: Error | string | unknown;
-}
+
 interface ResponseData {
   user_id: string;
   email: string;
@@ -57,14 +53,14 @@ export class UserController {
       const { name, email, password, phone_number } = req.body;
 
       //   check user details exists or not
-      const checkUser = await prisma.user.findFirst({
+      const userExist = await prisma.user.findFirst({
         where: {
           email,
           phone_number,
         },
       });
 
-      if (checkUser) {
+      if (userExist) {
         res.status(400).json({
           success: false,
           message: "User already exists",
@@ -178,6 +174,13 @@ export class UserController {
       }
 
       const token = generateToken(user.id, email);
+
+      res.cookie("token", token, {
+        maxAge: 72 * 60 * 60 * 1000,
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
 
       res.status(200).json({
         success: false,
