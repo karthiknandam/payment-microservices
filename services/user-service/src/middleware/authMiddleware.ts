@@ -18,7 +18,6 @@ export const AuthMiddlware = async (
   next: NextFunction
 ): Promise<void> => {
   logger.info("User Middleware hit ..");
-  logger.info(req.cookies);
   try {
     const token = req.cookies?.token;
     if (!token) {
