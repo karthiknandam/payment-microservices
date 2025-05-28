@@ -12,6 +12,7 @@ interface AuthRequest extends Request {
     token: string;
   };
 }
+const JWT_SECRET = process.env.JWT_SECRET;
 export const AuthMiddlware = async (
   req: AuthRequest,
   res: Response,
@@ -23,12 +24,11 @@ export const AuthMiddlware = async (
     if (!token) {
       res.status(403).json({
         success: false,
-        message: "Forbidden request",
-        error: "Unauthorized user / Please signup",
+        message: "Unauthorized user / Please signup",
+        error: "Forbidden request",
       } satisfies AuthResponse);
       return;
     }
-    const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {
       throw new Error("JWT_SECRET not found");
     }
