@@ -10,6 +10,7 @@ env.config();
 
 const PORT = process.env.PORT || 3000;
 const USER_SERVICE = process.env.USER_SERVICE || "";
+const ORDER_SERVICE = process.env.ORDER_SERVICE || "";
 const server = express();
 
 server.use(cors());
@@ -50,6 +51,22 @@ server.use(
       logger.info(
         `Response received from user service ${proxyRes.statusCode} `
       );
+      return proxyResData;
+    },
+  })
+);
+
+server.use(
+  "/v1/orders",
+  proxy(ORDER_SERVICE, {
+    ...proxyConfiguration,
+    proxyReqOptDecorator: (proxyReqOpts, srcReq) => {
+      (proxyReqOpts.headers as Record<string, string>)["Content-type"] =
+        "application/json";
+      return proxyReqOpts;
+    },
+    userResDecorator: (proxyRes, proxyResData, userReq, userRes) => {
+      logger.info(`Response recevied from orde service ${proxyRes.url}`);
       return proxyResData;
     },
   })
