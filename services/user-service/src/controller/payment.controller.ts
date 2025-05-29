@@ -12,7 +12,7 @@ interface AuthRequest extends Request {
 }
 type AuthResponsePaymentMethods = Omit<PaymentType, "expiry_date"> & {
   id: string;
-  expiry_date: Date;
+  expiry_date: string;
 };
 export class PaymentController {
   private constructor() {}
@@ -62,14 +62,12 @@ export class PaymentController {
         return;
       }
 
-      const [month, year] = expiry_date.split("/");
-      const formatExpiry = new Date(`20${year}-${month}-01`);
       await prisma.paymentMethod.create({
         data: {
           user_id,
           card_number,
           cardholder_name,
-          expiry_date: formatExpiry,
+          expiry_date,
         },
       });
 
@@ -88,10 +86,10 @@ export class PaymentController {
     }
   }
 
-  public static async GetPaymentDetails(req: AuthRequest, res: Response) {
+  public static async GetPaymentDetails(req: Request, res: Response) {
     logger.info("Getting paymentDetails.....");
     try {
-      const user_id = req.user?.id;
+      const { user_id } = req.params;
       if (!user_id) {
         res.status(400).json({
           success: false,
@@ -127,10 +125,7 @@ export class PaymentController {
         return;
       }
 
-      if (
-        !userDetails?.payment_methods ||
-        userDetails.payment_methods.length === 0
-      ) {
+      if (!userDetails?.payment_methods) {
         res.status(400).json({
           success: false,
           message: "No payment details found",
@@ -143,9 +138,9 @@ export class PaymentController {
         success: false,
         message: "Fetched Data ✅",
         error: undefined,
-        data: userDetails.payment_methods,
+        data: userDetails.payment_methods[0],
       } satisfies AuthResponse & {
-        data: AuthResponsePaymentMethods[];
+        data: AuthResponsePaymentMethods;
       });
     } catch (error) {
       logger.warn(`Internal server error : ${error}`);
