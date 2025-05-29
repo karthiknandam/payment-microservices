@@ -34,7 +34,7 @@ model PaymentMethod{
   user_id String
   card_number String 
   cardholder_name String
-  expiry_date DateTime
+  expiry_date String
   created_at DateTime @default(now())
 
   // relations
