@@ -5,11 +5,14 @@ import cors from "cors";
 import helmet from "helmet";
 import OrderRoute from "./routes/order.route";
 import cookieParser from "cookie-parser";
+import { runConsumer } from "./utils/kafka";
 env.config();
 
 const server = express();
+runConsumer();
 const PORT = process.env.PORT || 3002;
 const API_GATEWAY = process.env.API_GATEWAY || "http://localhost:3000";
+
 
 server.use(cookieParser());
 server.use(express.json());

@@ -4,6 +4,8 @@ import { OrderSchema, OrderType } from "../validations/order.validation";
 import prisma from "../lib/prisma";
 import { AuthRequest, AuthResponse } from "../utils/types";
 import { Status } from "../generated/prisma";
+import { publishEvent } from "../utils/kafka";
+import { JsonWebTokenError } from "jsonwebtoken";
 
 export class OrderController {
   private constructor() {}
@@ -55,7 +57,17 @@ export class OrderController {
       });
 
       //   Publish event to payment service to get order done
+
+      const orderPublishPayload = {
+        orderId: order.id,
+        user_id,
+        item: order.item,
+        amount: order.amount,
+      };
+
       // Kafka event
+
+      await publishEvent(JSON.stringify(orderPublishPayload));
 
       res.status(200).json({
         success: true,
