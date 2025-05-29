@@ -20,32 +20,18 @@ export async function processPayment(
   expiry_date: string
 ) {
   try {
-    logger.info(
-      JSON.stringify({
-        orderId,
-        userId,
-        amount,
-        item,
-        cardNumber,
-        expiry_date,
-      })
-    );
     const [expMonth, expYear] = expiry_date
       .split("/")
       .map((part) => parseInt(part, 10));
-    console.log(cardNumber);
     const paymentMethod = await stripe.paymentMethods.create({
-      // type: "card",
       type: "card",
       card: {
-        number: "4000003560000008", // for instance this is indian card test number "4000003560000008",
+        number: cardNumber, // for instance this is indian card test number "4000003560000008",
         exp_month: expMonth, //12
         exp_year: expYear, //2026,
-        cvc: "123", // for now radomizing the cvv we shall pass it through the request handler
+        cvc: "123", // for now randomizing the cvv we shall pass it through the request handler
       },
     });
-
-    logger.info(paymentMethod);
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: Math.round(amount * 100),
