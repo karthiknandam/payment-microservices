@@ -1,3 +1,5 @@
+import env from "dotenv";
+env.config();
 import axios from "axios";
 import { Kafka, Partitioners } from "kafkajs";
 import { processPayment } from "../utils/stripe";
@@ -61,7 +63,6 @@ export async function runConsumer() {
     await consumer.subscribe({ topic: "order.create", fromBeginning: true });
     console.log("Consumer is listening to order.create");
 
-    // Process messages
     await consumer.run({
       eachMessage: async ({ topic, partition, message }) => {
         const orderData = JSON.parse(message.value?.toString() || "{}");
@@ -78,13 +79,10 @@ export async function runConsumer() {
         const getUserPaymentDetails = await axios.get(
           `${apiGatewayUrl}/v1/auth/payment-methods/get/${user_id}`
         );
-        const userEmail = getUserPaymentDetails.data.email;
+        const userEmail = getUserPaymentDetails.data.data.email;
 
-        const card_number = getUserPaymentDetails.data.card_number;
-        const expiry_date = getUserPaymentDetails.data.expiry_date;
-        logger.info(userEmail);
-        logger.info(card_number);
-        logger.info(expiry_date);
+        const card_number = getUserPaymentDetails.data.data.card_number;
+        const expiry_date = getUserPaymentDetails.data.data.expiry_date;
         const result = await processPayment(
           orderId,
           user_id,
@@ -128,7 +126,6 @@ export async function runConsumer() {
   }
 }
 
-// Graceful shutdown
 process.on("SIGINT", async () => {
   await producer.disconnect();
   await consumer.disconnect();
