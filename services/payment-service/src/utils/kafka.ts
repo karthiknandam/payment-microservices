@@ -96,7 +96,15 @@ export async function runConsumer() {
         if (result.success) {
           const paymentIntentId = result.paymentIntentId!;
           const paymentStatus = "Paid";
-
+          console.log(
+            orderId,
+            user_id,
+            userEmail,
+            amount,
+            item,
+            paymentStatus,
+            paymentIntentId
+          );
           publishEvent(
             orderId,
             user_id,
