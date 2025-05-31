@@ -138,9 +138,16 @@ export class PaymentController {
         success: false,
         message: "Fetched Data ✅",
         error: undefined,
-        data: userDetails.payment_methods[0],
+        data: {
+          // we can modify -> only for testing purposes
+          email: userDetails.email,
+          id: userDetails.payment_methods[0].id,
+          cardholder_name: userDetails.payment_methods[0].cardholder_name,
+          expiry_date: userDetails.payment_methods[0].expiry_date,
+          card_number: userDetails.payment_methods[0].card_number,
+        },
       } satisfies AuthResponse & {
-        data: AuthResponsePaymentMethods;
+        data: any;
       });
     } catch (error) {
       logger.warn(`Internal server error : ${error}`);
